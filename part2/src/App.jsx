@@ -1,12 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Note from './components/Note'
 
 
 const App = (props) => {
-  // map creates new array of items mapped from items in original array
-  //const result = notes.map(note => note.id)
-
-  const [notes, setNotes] = useState(props.notes)
+  const [notes, setNotes] = useState([])
 
   // for storing user-submitted input in form
   const [newNote, setNewNote] = useState('')
@@ -14,6 +12,19 @@ const App = (props) => {
   // for keeping track of which notes should be displayed
   const [showAll, setShowAll] = useState(true)
 
+  // fetching notes data from server with an effect hook
+  const hook = () => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        console.log('promise fulfilled')
+        setNotes(response.data)
+      })
+  }
+  useEffect(hook, [])  // effects run after every render by default, but can be set to run after certain values have changed
+
+  console.log('render', notes.length, 'notes')
   
   // conditional operator ?: condition true = val1, condition false = val2
   const val1 = 1
