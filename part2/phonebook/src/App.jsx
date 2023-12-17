@@ -65,11 +65,9 @@ const App = () => {
       .create(personObject)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
       })
-
-    setPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
   }
 
   const handlePersonChange = (event) => {
@@ -91,6 +89,11 @@ const App = () => {
     setShowName(event.target.value)
   }
 
+  const handleDeleteClick = (event) => {
+    event.preventDefault()
+
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -104,7 +107,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <List personsToList={personsToShow} />
+      <List personsToList={personsToShow} handleDeleteClick={handleDeleteClick} />
     </div>
   )
 }
