@@ -41,11 +41,34 @@ const App = () => {
         name: 'State of a component',
         exercises: 14,
         id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
       }
     ]
   }
 
-  return <Course course={course} />
+  /**
+   * reduce "reduces" the array
+   * to a single value (in this case the sum)
+   */
+  const total = course.parts.reduce(
+    (s, p) => {
+      console.log('whats happening', s, p);
+      s += p.exercises
+      return s
+    },
+    0
+  )
+
+  return (
+    <div>
+      <Course course={course} />
+      <b>total of {total} exercises</b>
+    </div>
+  )
 }
 
 export default App
