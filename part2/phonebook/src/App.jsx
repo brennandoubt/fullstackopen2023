@@ -3,6 +3,7 @@ import axios from 'axios'
 import Entry from './components/Entry'
 import List from './components/List'
 import Filter from './components/Filter'
+import phonebookService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -15,12 +16,22 @@ const App = () => {
 
   useEffect(() => {
     console.log('effect')
+
+    phonebookService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+    
+    /*
     axios
       .get('http://localhost:3001/persons')
       .then(response => {
         console.log('promise fulfilled')
         setPersons(response.data)
       })
+    */
+
   }, [])
   console.log('fetched', persons)
 
@@ -41,11 +52,19 @@ const App = () => {
       id: persons.length + 1
     }
 
+    /*
     // saving new phonebook entries to backend server via POST request
     axios
       .post(`http://localhost:3001/persons`, personObject)
       .then(response => {
         console.log(response)
+      })
+    */
+    
+    phonebookService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
       })
 
     setPersons(persons.concat(personObject))
