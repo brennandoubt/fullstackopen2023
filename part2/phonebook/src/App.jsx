@@ -41,6 +41,13 @@ const App = () => {
       id: persons.length + 1
     }
 
+    // saving new phonebook entries to backend server via POST request
+    axios
+      .post(`http://localhost:3001/persons`, personObject)
+      .then(response => {
+        console.log(response)
+      })
+
     setPersons(persons.concat(personObject))
     setNewName('')
     setNewNumber('')
