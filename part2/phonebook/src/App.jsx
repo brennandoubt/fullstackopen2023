@@ -42,7 +42,34 @@ const App = () => {
     // check if name already in phonebook
     const isNotDuplicate = persons.every(person => (person.name != newName))
     if (!isNotDuplicate) {
-      alert(`${newName} is already added to phonebook`)  // browser pop-up alert w/ template string
+      const isConfirmed = confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)  // browser pop-up alert w/ template string
+      if (!isConfirmed) {
+        return
+      }
+
+      const person = persons.find(p => (p.name === newName))
+      console.log(person, 'duplicate in phonebook here')
+      const updateId = person.id
+
+      const updatedPersonObject = {
+        ...person,
+        number: newNumber
+      }
+
+      phonebookService
+        .update(updateId, updatedPersonObject)
+        .then(returnedPerson => {
+          setPersons(persons.map(p => p.name !== newName ? p : returnedPerson))
+        })
+        .catch(error => {
+          alert(`Error occurred while trying to update number`)
+        })
+
+
+      //const id = -1
+      //const nameAlreadyInBook = persons.reduce(p => (p.name === newName) ? p.id : id)
+      //console.log(nameAlreadyInBook, id, 'checking these values')
+
       return
     }
 
