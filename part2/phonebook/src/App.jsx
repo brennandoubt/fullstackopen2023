@@ -49,7 +49,6 @@ const App = () => {
     const personObject = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1
     }
 
     /*
@@ -68,6 +67,9 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+      .catch(error => {
+        alert(`Could not add entry`)
+      })
   }
   const deletePerson = (event) => {
     event.preventDefault()
@@ -81,6 +83,7 @@ const App = () => {
     let copy = persons
     console.log(copy)
     const id = event.target.id
+    console.log('delete id', id)
 
     phonebookService
       .remove(event.target.id)
