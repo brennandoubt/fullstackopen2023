@@ -71,6 +71,12 @@ const App = () => {
   }
   const deletePerson = (event) => {
     event.preventDefault()
+    const isConfirmed = confirm(`Delete this entry?`)
+    if (!isConfirmed) {
+      console.log(isConfirmed, 'boolean value')
+      return
+    }
+
     console.log('delete pressed', event.target.id)
     let copy = persons
     console.log(copy)
