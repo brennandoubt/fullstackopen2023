@@ -10,11 +10,22 @@ const App = () => {
   // for controlling form input element
   const [newName, setNewName] = useState('')
 
+  // executes when clicking form button
   const addPerson = (event) => {
     event.preventDefault()
-    const personObject = {
-      name: newName,
+
+    const isNotDuplicate = persons.every(person => (person.name != newName))
+    console.log(isNotDuplicate);
+
+    if (!isNotDuplicate) {
+      alert(`${newName} is already added to phonebook`)  // browser pop-up alert w/ template string
+      return
     }
+
+    const personObject = {
+      name: newName
+    }
+
     setPersons(persons.concat(personObject))
     setNewName('')
   }
