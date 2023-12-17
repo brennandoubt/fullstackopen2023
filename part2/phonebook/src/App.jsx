@@ -69,6 +69,23 @@ const App = () => {
         setNewNumber('')
       })
   }
+  const deletePerson = (event) => {
+    event.preventDefault()
+    console.log('delete pressed', event.target.id)
+    let copy = persons
+    console.log(copy)
+    const id = event.target.id
+
+    phonebookService
+      .remove(event.target.id)
+      .then(response => {
+        console.log(response.data)
+        console.log('curr persons', persons)
+        const updatedPersons = persons.filter(p => p.id != id)
+        setPersons(updatedPersons)
+        console.log('updated persons', updatedPersons)
+      })
+  }
 
   const handlePersonChange = (event) => {
     console.log(event.target.value)
@@ -89,11 +106,6 @@ const App = () => {
     setShowName(event.target.value)
   }
 
-  const handleDeleteClick = (event) => {
-    event.preventDefault()
-
-  }
-
   return (
     <div>
       <h2>Phonebook</h2>
@@ -107,7 +119,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <List personsToList={personsToShow} handleDeleteClick={handleDeleteClick} />
+      <List personsToList={personsToShow} handleDeleteClick={deletePerson} />
     </div>
   )
 }
