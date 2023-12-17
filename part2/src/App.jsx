@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Note from './components/Note'
+import noteService from './services/notes'
 
 
 const App = (props) => {
@@ -13,18 +14,39 @@ const App = (props) => {
   const [showAll, setShowAll] = useState(true)
 
   // fetching notes data from server with an effect hook
-  const hook = () => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response => {
-        console.log('promise fulfilled')
-        setNotes(response.data)
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
       })
-  }
-  useEffect(hook, [])  // effects run after every render by default, but can be set to run after certain values have changed
+  }, [])   // effects run after every render by default, but can be set to run after certain values have changed
 
-  console.log('render', notes.length, 'notes')
+  const toggleImportanceOf = (id) => {
+    console.log(`importance of ${id} needs to be toggled`)  // template string
+    const url = `http://localhost:3001/notes/${id}`  // defines unique URL for each note resource based on its id
+    const note = notes.find(n => n.id === id)  // finds note to modify and assigns it to 'note' variable
+    const changedNote = { ...note, important: !note.important }  // make a copy of the note but with its important property flipped
+
+    noteService
+      .update(id, changedNote)
+      .then(returnedNote => {
+        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+      })
+      .catch(error => {  // error handling for when promise is "rejected"
+        alert(
+          `the note '${note.content}' was already deleted from server`
+        )
+        setNotes(notes.filter(n => n.id !== id))
+      })
+
+    /*
+    // PUT request sent to backend to replace note data, then component's notes state set to new array containing the updated version of note
+    axios.put(url, changedNote).then(response => {
+      setNotes(notes.map(n => n.id !== id ? n : response.data))
+    })
+    */
+  }
   
   // conditional operator ?: condition true = val1, condition false = val2
   const val1 = 1
@@ -46,11 +68,29 @@ const App = (props) => {
     const noteObject = {
       content: newNote,
       important: Math.random() < 0.5,
-      id: notes.length + 1
     }
 
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
+    /*
+    // note object sent to the server
+    axios
+      .post('http://localhost:3001/notes', noteObject)
+      .then(response => {
+        console.log(response)
+
+        // then updated on the browser
+        setNotes(notes.concat(response.data))
+        setNewNote('')
+      })
+    */
+    noteService
+      .create(noteObject)
+      .then(returnedNote => {
+        setNotes(notes.concat(returnedNote))
+        setNewNote('')
+      })
+
+    //setNotes(notes.concat(noteObject))
+    //setNewNote('')
   }
 
   const handleNoteChange = (event) => {
@@ -74,7 +114,11 @@ const App = (props) => {
       </div>
       <ul>
         {notesToShow.map(note =>
-          <Note key={note.id} note={note} />
+          <Note
+            key={note.id}
+            note={note}
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
         )}
       </ul>
       <form onSubmit={addNote}>
