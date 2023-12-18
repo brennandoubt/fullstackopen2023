@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react"
-import axios, { formToJSON } from 'axios'
+import axios from 'axios'
+
+// Open Weather API key, stored in environment variable retrieved from .env file in root directory
+const api_key = import.meta.env.VITE_WS_KEY
+
+console.log('api key', api_key)
 
 const CountryData = ({ name, capital, area, languages, flag }) => {
   return (
