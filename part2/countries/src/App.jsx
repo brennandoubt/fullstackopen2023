@@ -22,8 +22,8 @@ const App = () => {
       })
   }, [])
 
+  // filter countries shown by search field input
   let countriesToShow = countries.filter(country => country.name.common.toLowerCase().includes(searchedCountry.toLowerCase()))
-
   const handleFilterChange = (event) => {
     console.log(event.target.value)
     const updatedCountryName = event.target.value
@@ -31,10 +31,15 @@ const App = () => {
     setSearchedCountry(event.target.value)
   }
 
+  // limits countries listed to 10, otherwise asks user to be more specific
+  let listedCountries = (countriesToShow.length > 10)
+    ? <div>Too many matches, specify another filter</div>
+    : countriesToShow.map(country => <div key={country.name.common}>{country.name.common}</div>)
+
   return (
     <div>
       <p>find countries <input value={!searchedCountry ? `` : searchedCountry} onChange={handleFilterChange} /></p>
-      {countriesToShow.map(country => <div key={country.name.common}>{country.name.common}</div>)}
+      {listedCountries}
     </div>
   )
 }
