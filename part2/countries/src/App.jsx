@@ -15,9 +15,19 @@ const CountryLine = ({ name, handleShowClick }) => {
   )
 }
 
-const CountryData = ({ name, capital, area, languages, flag, latlng }) => {
+const CountryData = ({ country }) => {
   //console.log(`${name}'s coords`, latlng)
   let units = 'metric'
+
+  const countryObject = country[0]
+
+  const name = countryObject.name.common
+  const capital = countryObject.capital
+  const area = countryObject.area
+  const languages = [countryObject.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))
+  const flag = countryObject.flag
+  const latlng = countryObject.capitalInfo.latlng
+
   const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latlng[0]}&lon=${latlng[1]}&units=${units}&appid=${api_key}`
 
   return (
@@ -97,6 +107,7 @@ const App = () => {
       <p>find countries <input value={searchedCountry} onChange={handleFilterChange} /></p>
       {(showCountry) // case for showing country on button click or filtered search
         ? <CountryData 
+            country={[showCountry]}
             name={showCountry.name.common}
             capital={showCountry.capital}
             area={showCountry.area}
