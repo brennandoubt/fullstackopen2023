@@ -3,10 +3,13 @@ import axios from 'axios'
 
 // Open Weather API key, stored in environment variable retrieved from .env file in root directory
 const api_key = import.meta.env.VITE_WS_KEY
+console.log(api_key)
 
-console.log('api key', api_key)
+const CountryData = ({ name, capital, area, languages, flag, tw }) => {
+  //console.log(`${name}'s coords`, latlng)
 
-const CountryData = ({ name, capital, area, languages, flag }) => {
+  //const wait = t => new Promise()
+
   return (
     <div>
       <h2>{name}</h2>
@@ -17,6 +20,8 @@ const CountryData = ({ name, capital, area, languages, flag }) => {
         {languages}
       </ul>
       {flag}
+      <h3>Weather in {capital}</h3>
+      <div>temperature {tw[0]} Celsius</div>
     </div>
   )
 }
@@ -36,9 +41,34 @@ const App = () => {
       .get(showCountry ? (baseUrl + `api/name/${showCountry.name.common}`) : (baseUrl + `api/all`))
       .then(response => {
         setCountries(response.data)
-        console.log('response data:', response.data)
+        //console.log('response data:', response.data)
       })
   }, [showCountry])
+
+  // fetch weather data
+  let units = 'metric'
+  const getWeatherData = () => {
+    
+    const latlng = showCountry.capitalInfo.latlng
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latlng[0]}&lon=${latlng[1]}&units=${units}&appid=${api_key}`
+    console.log(weatherUrl)
+    const promise = axios
+      .get(weatherUrl)
+      .then(response => {
+        //console.log(`weather response data for ${capital}`, response.data)
+        const weatherdata = response.data
+        const temp = weatherdata.main.temp
+        const windspeed = weatherdata.wind.speed
+        const weatherarr = [temp, windspeed]
+        setTempwind(weatherarr)
+
+        console.log(temp, windspeed)
+
+        return response.data
+      })
+    
+    return tempwind
+  }
 
   // filter countries shown by search field input
   let countriesToShow = (countries.length > 1)
@@ -58,6 +88,8 @@ const App = () => {
     setSearchedCountry(event.target.value)
   }
 
+  const [tempwind, setTempwind] = useState([])
+
   const handleCountryView = (event) => {
     event.preventDefault()
 
@@ -65,9 +97,9 @@ const App = () => {
     const country = countries.find(c => c.name.official === event.target.id)
     console.log(country)
 
-    // filter out all other countries in list, should automatically display country's data?
-    //countriesToShow = [country]
     setShowCountry(country)
+    const tw = getWeatherData()
+    setTempwind(tw)
 
     return (
       (showCountry)
@@ -77,6 +109,7 @@ const App = () => {
             area={showCountry.area}
             languages={[showCountry.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
             flag={showCountry.flag}
+            tw={tw}
           />
         : []
     )
@@ -90,6 +123,8 @@ const App = () => {
   : (countriesToShow.length > 1 && !showCountry)
     ? countriesToShow.map(country => <div key={country.name.official}>{country.name.common} <button id={country.name.official} onClick={handleCountryView}>show</button></div>)
     : []
+  
+  
  
   return (
     <div>
@@ -101,6 +136,7 @@ const App = () => {
             area={countriesToShow[0].area}
             languages={[countriesToShow[0].languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
             flag={countriesToShow[0].flag}
+            tw={tempwind}
           />
         : listedCountries
       }
@@ -111,6 +147,7 @@ const App = () => {
             area={showCountry.area}
             languages={[showCountry.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
             flag={showCountry.flag}
+            tw={tempwind}
           />
         : []
       }
