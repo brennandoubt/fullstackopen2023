@@ -1,8 +1,19 @@
 import { useState, useEffect } from "react"
-import axios from 'axios'
+import axios, { formToJSON } from 'axios'
 
-const Filter = () => {
-
+const CountryData = ({ name, capital, area, languages, flag }) => {
+  return (
+    <div>
+      <h2>{name}</h2>
+      <div>capital {capital}</div>
+      <div>area {area}</div>
+      <p><b>languages:</b></p>
+      <ul>
+        {languages}
+      </ul>
+      {flag}
+    </div>
+  )
 }
 
 const App = () => {
@@ -16,7 +27,7 @@ const App = () => {
     console.log('effect')
 
     axios
-      .get((searchedCountry != ``) ? (baseUrl + `api/name/${searchedCountry}`) : (baseUrl + `api/all`))
+      .get(baseUrl + `api/all`)
       .then(response => {
         setCountries(response.data)
       })
@@ -36,10 +47,23 @@ const App = () => {
     ? <div>Too many matches, specify another filter</div>
     : countriesToShow.map(country => <div key={country.name.common}>{country.name.common}</div>)
 
+  let languageData = countriesToShow.length === 1
+    ? countriesToShow[0].languages
+    : []
+
   return (
     <div>
       <p>find countries <input value={!searchedCountry ? `` : searchedCountry} onChange={handleFilterChange} /></p>
-      {listedCountries}
+      {(countriesToShow.length === 1)
+        ? <CountryData 
+            name={countriesToShow[0].name.common}
+            capital={countriesToShow[0].capital}
+            area={countriesToShow[0].area}
+            languages={[languageData].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
+            flag={countriesToShow[0].flag}
+          />
+        : listedCountries
+      }
     </div>
   )
 }
