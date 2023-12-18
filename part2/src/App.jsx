@@ -3,8 +3,35 @@ import axios from 'axios'
 import Note from './components/Note'
 import noteService from './services/notes'
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='error'>
+      {message}
+    </div>
+  )
+}
+
+const Footer = () => {
+  const footerStyle = {
+    color: 'green',
+    fontStyle: 'italic',
+    fontSize: 16
+  }
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>Note app, Department of Computer Science, University of Helsinki 2023</em>
+    </div>
+  )
+}
 
 const App = (props) => {
+  const [errorMessage, setErrorMessage] = useState('some error happened...')
+
   const [notes, setNotes] = useState([])
 
   // for storing user-submitted input in form
@@ -24,7 +51,7 @@ const App = (props) => {
 
   const toggleImportanceOf = (id) => {
     console.log(`importance of ${id} needs to be toggled`)  // template string
-    const url = `http://localhost:3001/notes/${id}`  // defines unique URL for each note resource based on its id
+
     const note = notes.find(n => n.id === id)  // finds note to modify and assigns it to 'note' variable
     const changedNote = { ...note, important: !note.important }  // make a copy of the note but with its important property flipped
 
@@ -34,9 +61,12 @@ const App = (props) => {
         setNotes(notes.map(note => note.id !== id ? note : returnedNote))
       })
       .catch(error => {  // error handling for when promise is "rejected"
-        alert(
-          `the note '${note.content}' was already deleted from server`
+        setErrorMessage(
+          `Note '${note.content}' was already deleted from server`
         )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
         setNotes(notes.filter(n => n.id !== id))
       })
 
@@ -102,6 +132,7 @@ const App = (props) => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notification message={errorMessage} />
       {/* <ul>
         <li>{notes[0].content}</li>
         <li>{notes[1].content}</li>
@@ -128,6 +159,7 @@ const App = (props) => {
         />
         <button type="submit">save</button>
       </form>
+      <Footer />
     </div>
   )
 }

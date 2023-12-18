@@ -5,7 +5,21 @@ import List from './components/List'
 import Filter from './components/Filter'
 import phonebookService from './services/persons'
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='operation'>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
+  const [operationMessage, setOperationMessage] = useState(null)
+
   const [persons, setPersons] = useState([])
 
   // for controlling form input element
@@ -60,6 +74,9 @@ const App = () => {
         .update(updateId, updatedPersonObject)
         .then(returnedPerson => {
           setPersons(persons.map(p => p.name !== newName ? p : returnedPerson))
+          setOperationMessage(
+            `${returnedPerson.name}'s number successfully updated`
+          )
         })
         .catch(error => {
           alert(`Error occurred while trying to update number`)
@@ -93,6 +110,9 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
+        setOperationMessage(
+          `${returnedPerson.name} successfully added to phonebook`
+        )
       })
       .catch(error => {
         alert(`Could not add entry`)
@@ -120,6 +140,10 @@ const App = () => {
         const updatedPersons = persons.filter(p => p.id != id)
         setPersons(updatedPersons)
         console.log('updated persons', updatedPersons)
+
+        setOperationMessage(
+          `Person removed from phonebook`
+        )
       })
   }
 
@@ -145,6 +169,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={operationMessage} />
       <Filter showName={showName} handleFilterChange={handleFilterChange} />
       <h2>add a new entry</h2>
       <Entry
