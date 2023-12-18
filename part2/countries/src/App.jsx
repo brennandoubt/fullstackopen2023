@@ -15,20 +15,19 @@ const CountryLine = ({ name, handleShowClick }) => {
   )
 }
 
-const CountryData = ({ country }) => {
-  //console.log(`${name}'s coords`, latlng)
-  let units = 'metric'
-
+const CountryData = ({ country, weatherdata }) => {
   const countryObject = country[0]
+  console.log(`weather data for ${countryObject.name.common}`, weatherdata)
 
   const name = countryObject.name.common
   const capital = countryObject.capital
   const area = countryObject.area
   const languages = [countryObject.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))
   const flag = countryObject.flag
-  const latlng = countryObject.capitalInfo.latlng
 
-  const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latlng[0]}&lon=${latlng[1]}&units=${units}&appid=${api_key}`
+  const temp = weatherdata.main.temp
+  const wind = weatherdata.wind.speed
+  console.log(`${name} temp:`, temp, `${name} windspeed:`, wind)
 
   return (
     <div>
@@ -41,7 +40,8 @@ const CountryData = ({ country }) => {
       </ul>
       {flag}
       <h3>Weather in {capital}</h3>
-      <div>temperature {} Celsius</div>
+      <div>temperature {temp} Celsius</div>
+      <div>wind {wind} m/s</div>
     </div>
   )
 }
@@ -66,6 +66,25 @@ const App = () => {
       })
     
   }, [])
+
+  useEffect(() => {
+    console.log('effect2')
+    let units = 'metric'
+
+    if (showCountry) {
+      const latlng = showCountry.capitalInfo.latlng
+      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latlng[0]}&lon=${latlng[1]}&units=${units}&appid=${api_key}`
+      console.log(weatherUrl)
+
+      axios
+        .get(weatherUrl)
+        .then(response => {
+          console.log(`weather response data:`, response.data)
+          setWeatherData(response.data)
+        })
+    }
+
+  }, [showCountry])
 
   // filter countries shown by search field input
   let countriesToShow = countries.filter(country => country.name.common.toLowerCase().includes(searchedCountry.toLowerCase()))
@@ -106,15 +125,7 @@ const App = () => {
     <div>
       <p>find countries <input value={searchedCountry} onChange={handleFilterChange} /></p>
       {(showCountry) // case for showing country on button click or filtered search
-        ? <CountryData 
-            country={[showCountry]}
-            name={showCountry.name.common}
-            capital={showCountry.capital}
-            area={showCountry.area}
-            languages={[showCountry.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
-            flag={showCountry.flag}
-            latlng={showCountry.capitalInfo.latlng}
-          />
+        ? <CountryData country={[showCountry]} weatherdata={weatherData} />
         : listedCountries
       }
     </div>
