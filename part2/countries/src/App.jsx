@@ -32,7 +32,6 @@ const App = () => {
       .then(response => {
         setCountries(response.data)
         console.log('response data:', response.data)
-        
       })
   }, [showCountry])
 
@@ -41,7 +40,9 @@ const App = () => {
     ? countries.filter(country => country.name.common.toLowerCase().includes(searchedCountry.toLowerCase()))
     : countries
   const handleFilterChange = (event) => {
+    event.preventDefault()
     console.log(event.target.value, showCountry, 'status')
+
     const updatedCountryName = event.target.value
     countriesToShow = showCountry
       ? setShowCountry(null)
@@ -53,6 +54,8 @@ const App = () => {
   }
 
   const handleCountryView = (event) => {
+    event.preventDefault()
+
     console.log(event.target.value, event.target, event.target.id)
     const country = countries.find(c => c.name.official === event.target.id)
     console.log(country)
@@ -60,6 +63,18 @@ const App = () => {
     // filter out all other countries in list, should automatically display country's data?
     //countriesToShow = [country]
     setShowCountry(country)
+
+    return (
+      (showCountry)
+        ? <CountryData 
+            name={showCountry.name.common}
+            capital={showCountry.capital}
+            area={showCountry.area}
+            languages={[showCountry.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
+            flag={showCountry.flag}
+          />
+        : []
+    )
   }
 
   let listedCountries = []
@@ -71,10 +86,6 @@ const App = () => {
     ? countriesToShow.map(country => <div key={country.name.official}>{country.name.common} <button id={country.name.official} onClick={handleCountryView}>show</button></div>)
     : []
  
-  let languageData = countriesToShow.length === 1
-    ? countriesToShow[0].languages
-    : []
-
   return (
     <div>
       <p>find countries <input value={searchedCountry} onChange={handleFilterChange} /></p>
@@ -83,7 +94,7 @@ const App = () => {
             name={countriesToShow[0].name.common}
             capital={countriesToShow[0].capital}
             area={countriesToShow[0].area}
-            languages={[languageData].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
+            languages={[countriesToShow[0].languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
             flag={countriesToShow[0].flag}
           />
         : listedCountries
@@ -96,7 +107,7 @@ const App = () => {
             languages={[showCountry.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))}
             flag={showCountry.flag}
           />
-        : listedCountries
+        : []
       }
     </div>
   )
