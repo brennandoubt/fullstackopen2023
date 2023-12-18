@@ -1,11 +1,6 @@
 {
   "persons": [
     {
-      "name": "Tanner",
-      "number": "3333333",
-      "id": 2
-    },
-    {
       "name": "Conner",
       "number": "77799900",
       "id": 5
@@ -14,11 +9,6 @@
       "name": "Brenman",
       "number": "777333111",
       "id": 7
-    },
-    {
-      "name": "Brennan",
-      "number": "773311",
-      "id": 8
     }
   ]
 }

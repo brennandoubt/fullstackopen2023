@@ -5,13 +5,14 @@ import List from './components/List'
 import Filter from './components/Filter'
 import phonebookService from './services/persons'
 
-const Notification = ({ message }) => {
+const Notification = ({ message, isError }) => {
   if (message === null) {
     return null
   }
+  const classname = isError ? 'error' : 'operation'
 
   return (
-    <div className='operation'>
+    <div className={classname}>
       {message}
     </div>
   )
@@ -19,6 +20,7 @@ const Notification = ({ message }) => {
 
 const App = () => {
   const [operationMessage, setOperationMessage] = useState(null)
+  const [isError, setIsError] = useState(false)
 
   const [persons, setPersons] = useState([])
 
@@ -74,6 +76,7 @@ const App = () => {
         .update(updateId, updatedPersonObject)
         .then(returnedPerson => {
           setPersons(persons.map(p => p.name !== newName ? p : returnedPerson))
+          setIsError(false)
           setOperationMessage(
             `${returnedPerson.name}'s number successfully updated`
           )
@@ -82,7 +85,14 @@ const App = () => {
           }, 3000)
         })
         .catch(error => {
-          alert(`Error occurred while trying to update number`)
+          //alert(`Error occurred while trying to update number`)
+          setIsError(true)
+          setOperationMessage(
+            `${updatedPersonObject.name}'s information could not be reached from server`
+          )
+          setTimeout(() => {
+            setOperationMessage(null)
+          }, 3000)
         })
 
 
@@ -113,6 +123,7 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
+        setIsError(false)
         setOperationMessage(
           `${returnedPerson.name} successfully added to phonebook`
         )
@@ -121,7 +132,13 @@ const App = () => {
         }, 3000)
       })
       .catch(error => {
-        alert(`Could not add entry`)
+        setIsError(true)
+        setOperationMessage(
+          `${personObject.name} could not be added`
+        )
+        setTimeout(() => {
+          setOperationMessage(null)
+        }, 3000)
       })
   }
   const deletePerson = (event) => {
@@ -146,7 +163,7 @@ const App = () => {
         const updatedPersons = persons.filter(p => p.id != id)
         setPersons(updatedPersons)
         console.log('updated persons', updatedPersons)
-
+        setIsError(false)
         setOperationMessage(
           `Person removed from phonebook`
         )
@@ -178,7 +195,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={operationMessage} />
+      <Notification message={operationMessage} isError={isError} />
       <Filter showName={showName} handleFilterChange={handleFilterChange} />
       <h2>add a new entry</h2>
       <Entry
