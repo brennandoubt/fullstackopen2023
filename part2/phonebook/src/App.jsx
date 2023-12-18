@@ -77,6 +77,9 @@ const App = () => {
           setOperationMessage(
             `${returnedPerson.name}'s number successfully updated`
           )
+          setTimeout(() => {
+            setOperationMessage(null)
+          }, 3000)
         })
         .catch(error => {
           alert(`Error occurred while trying to update number`)
@@ -113,6 +116,9 @@ const App = () => {
         setOperationMessage(
           `${returnedPerson.name} successfully added to phonebook`
         )
+        setTimeout(() => {
+          setOperationMessage(null)
+        }, 3000)
       })
       .catch(error => {
         alert(`Could not add entry`)
@@ -144,6 +150,9 @@ const App = () => {
         setOperationMessage(
           `Person removed from phonebook`
         )
+        setTimeout(() => {
+          setOperationMessage(null)
+        }, 3000)
       })
   }
 
