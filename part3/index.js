@@ -18,6 +18,38 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
+
+// find largest id number in current list to assign to maxId (not recommended but using for now)
+const generateId = () => {
+   const maxId = notes.length > 0
+      ? Math.max(...notes.map(n => n.id)) // transform array into indiviual number using "three dot" spread syntax
+      : 0
+   return maxId + 1
+}
+
+// to handle adding new notes to server (verify with Postman or REACT client)
+app.post('/api/notes', (request, response) => {
+   const body = request.body
+
+   if (!body.content) {
+      return response.status(400).json({ // return here to keep bad note from being saved to app
+         error: 'content missing'
+      })
+   }
+
+   const note = {
+      content: body.content,
+      important: body.important || false,
+      id: generateId()
+   }
+
+   notes = notes.concat(note)
+
+   response.json(note)
+})
+
 let notes = [
    {
       id: 1,
