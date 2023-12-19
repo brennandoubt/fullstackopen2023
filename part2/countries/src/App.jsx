@@ -15,7 +15,7 @@ const CountryLine = ({ name, handleShowClick }) => {
   )
 }
 
-const CountryData = ({ country, weatherdata }) => {
+const CountryData = ({ country, weatherdata, imglink }) => {
   const countryObject = country[0]
   console.log(`weather data for ${countryObject.name.common}`, weatherdata)
 
@@ -23,11 +23,13 @@ const CountryData = ({ country, weatherdata }) => {
   const capital = countryObject.capital
   const area = countryObject.area
   const languages = [countryObject.languages].map(ls => (Object.values(ls).map(l => <li key={l}>{l}</li>)))
-  const flag = countryObject.flag
+  //const flag = countryObject.flag
 
-  const temp = weatherdata.main.temp
-  const wind = weatherdata.wind.speed
+  const temp = weatherdata ? weatherdata.main.temp : '#'
+  const wind = weatherdata ? weatherdata.wind.speed : '#'
   console.log(`${name} temp:`, temp, `${name} windspeed:`, wind)
+
+  const flagUrl = countryObject.flags.png
 
   return (
     <div>
@@ -38,10 +40,12 @@ const CountryData = ({ country, weatherdata }) => {
       <ul>
         {languages}
       </ul>
-      {flag}
+      <img src={flagUrl} />
       <h3>Weather in {capital}</h3>
       <div>temperature {temp} Celsius</div>
+      <img src={imglink} />
       <div>wind {wind} m/s</div>
+
     </div>
   )
 }
@@ -49,8 +53,9 @@ const CountryData = ({ country, weatherdata }) => {
 const App = () => {
   const [countries, setCountries] = useState([])
   const [searchedCountry, setSearchedCountry] = useState(``)
-  const [showCountry, setShowCountry] = useState(null)
-  const [weatherData, setWeatherData] = useState(null)
+  const [showCountry, setShowCountry] = useState(false)
+  const [weatherData, setWeatherData] = useState(false)
+  const [imglink, setimglink] = useState(``)
 
   // RESTful API to get country data
   const baseUrl = `https://studies.cs.helsinki.fi/restcountries/`
@@ -64,9 +69,13 @@ const App = () => {
         setCountries(response.data)
         console.log('response data:', response.data)
       })
+      .catch(error => {
+        alert(`Error fetching countries data`)
+      })
     
   }, [])
 
+  // using second effect hook that runs each time the single country view updates to generate weather report for new country
   useEffect(() => {
     console.log('effect2')
     let units = 'metric'
@@ -80,7 +89,13 @@ const App = () => {
         .get(weatherUrl)
         .then(response => {
           console.log(`weather response data:`, response.data)
+          const wdata = response.data
+          const iconUrl = `https://openweathermap.org/img/wn/${wdata.weather[0].icon}@2x.png`
+          setimglink(iconUrl)
           setWeatherData(response.data)
+        })
+        .catch(error => {
+          alert(`Error fetching weather data`)
         })
     }
 
@@ -105,8 +120,7 @@ const App = () => {
     setSearchedCountry(event.target.value)
   }
 
-  const handleShowCountry = (event) => {
-    event.preventDefault()
+  const handleShowClick = (event) => {
     //console.log(event.target, event.target.id)
 
     const country = countries.find(c => c.name.common === event.target.id)
@@ -118,14 +132,14 @@ const App = () => {
   // limits countries listed to 10, otherwise asks user to be more specific
   let listedCountries = (countriesToShow.length > 10)
     ? <div>Too many matches, specify another filter</div>
-    : countriesToShow.map(country => <CountryLine key={country.name.official} name={country.name.common} handleShowClick={handleShowCountry} />)
+    : countriesToShow.map(country => <CountryLine key={country.name.official} name={country.name.common} handleShowClick={handleShowClick} />)
   
  
   return (
     <div>
-      <p>find countries <input value={searchedCountry} onChange={handleFilterChange} /></p>
+      <p>find countries <input id="inpid1" value={searchedCountry} onChange={handleFilterChange} /></p>
       {(showCountry) // case for showing country on button click or filtered search
-        ? <CountryData country={[showCountry]} weatherdata={weatherData} />
+        ? <CountryData country={[showCountry]} weatherdata={weatherData} imglink={imglink} />
         : listedCountries
       }
     </div>
