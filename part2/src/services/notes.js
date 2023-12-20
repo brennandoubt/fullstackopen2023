@@ -1,5 +1,14 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/notes'
+
+/**
+ * Can't change URL due to same-origin policy because
+ * source HTML sent from backend server has refs unique
+ * to the URL it was fetched from
+ * 
+ * Use CORS to enable cross-origin requests for restricted
+ * resources (e.g. fonts)
+ */
+const baseUrl = 'http://localhost:3001/api/notes'
 
 const getAll = () => {
     const request = axios.get(baseUrl)
