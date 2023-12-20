@@ -1,8 +1,10 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Note from './components/Note'
 import noteService from './services/notes'
 
+// eslint-disable-next-line react/prop-types
 const Notification = ({ message }) => {
   if (message === null) {
     return null
@@ -27,6 +29,24 @@ const Footer = () => {
       <em>Note app, Department of Computer Science, University of Helsinki 2023</em>
     </div>
   )
+}
+/*
+<Note
+    key={note.id}
+    note={note}
+    toggleImportance={() => toggleImportanceOf(note.id)
+*/
+
+const List = ({ notes }) => {
+  if (notes) {
+    return [notes].map(n => {
+      <Note
+        key={n.id}
+        note={n}
+        toggleImportance={() => App.toggleImportanceOf(n.id)}
+      />
+    })
+  }
 }
 
 const App = (props) => {
@@ -89,7 +109,9 @@ const App = (props) => {
   // false -> filter by important notes
   const notesToShow = showAll
     ? notes
-    : notes.filter(note => note.important === true)  // === safer than == in JS
+    : (notes && notes.length > 1)
+      ? notes
+      : [notes].filter(note => note.important === true)  // === safer than == in JS
 
 
   // event triggers call to event handler function
@@ -144,13 +166,7 @@ const App = (props) => {
         </button>
       </div>
       <ul>
-        {notesToShow.map(note =>
-          <Note
-            key={note.id}
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
-          />
-        )}
+        <List notes={notesToShow} />
       </ul>
       <form onSubmit={addNote}>
         <input

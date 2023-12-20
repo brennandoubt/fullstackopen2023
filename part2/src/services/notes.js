@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 /**
  * Can't change URL due to same-origin policy because
  * source HTML sent from backend server has refs unique
@@ -7,8 +5,27 @@ import axios from 'axios'
  * 
  * Use CORS to enable cross-origin requests for restricted
  * resources (e.g. fonts)
+ * 
+ * (npm run build) at root of frontend project to create
+ * production build of app in 'dist' directory
+ * 
+ * (cp -r dist ../[backend_directory_name]) on Linux/Mac to copy frontend 
+ * production build to root of backend
+ * 
+ * Use 'static' middleware from Express in backend to
+ * make express show static content, such as page
+ * 'index.html' and JavaScript, etc.
+ * 
+ * Use relative URL path without declaring server if
+ * frontend and backend are at same address, then make
+ * new production build of frontend and copy to root
+ * of backend. App can now be used from backend address
+ * http://localhost:3001.
  */
-const baseUrl = 'http://localhost:3001/api/notes'  // connect backend (server) to frontend (browser)
+import axios from 'axios'
+
+//const baseUrl = 'http://localhost:3001/api/notes'  // connect backend (server) to frontend (browser)
+const baseUrl = '/api/notes'
 
 const getAll = () => {
     const request = axios.get(baseUrl)

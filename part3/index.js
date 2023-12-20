@@ -12,12 +12,19 @@
  * 
  * Express helps make a REST interface
  * for app
+ * 
+ * 3b) Use Express middleware 'static' in
+ * backend to make express show static content,
+ * such as page 'index.html' and JavaScript, etc.
  */
 
 // import express function to create app
 const express = require('express')
 const app = express()
 app.use(express.json())
+
+// make express show fetched static content (middleware)
+app.use(express.static('dist'))
 
 // enable cross-origin requests for resource sharing (middleware)
 const cors = require('cors')
@@ -101,7 +108,23 @@ app.delete('/api/notes/:id', (request, response) => {
    response.status(204).end()
 })
 
-const PORT = 3001
+/**
+ * (fly launch) in root of backend project to
+ * initialize app
+ * 
+ * (fly deploy) to deploy current version of
+ * app to Fly.io servers
+ * 
+ * (fly open) to open app in browser
+ * 
+ * (fly logs) to view server logs
+ * 
+ * (npm run build) in root of frontend project to create
+ * production build: version of app optimized for production
+ * instead of development
+ */
+
+const PORT = process.env.PORT || 3001 // use port env or 3001 if undefined
 app.listen(PORT, () => {
    console.log(`Server running on port ${PORT}`)
 })
