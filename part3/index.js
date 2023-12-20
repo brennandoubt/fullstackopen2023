@@ -1,5 +1,5 @@
 /**
- * 3a) Making a simple backend web server
+ * 3a) Making a backend web server
  * 
  * Express library eases
  * server-side development with Node
@@ -14,11 +14,14 @@
  * for app
  */
 
-// import express function to create an express app
+// import express function to create app
 const express = require('express')
 const app = express()
-
 app.use(express.json())
+
+// enable cross-origin requests for resource sharing (middleware)
+const cors = require('cors')
+app.use(cors())
 
 
 // find largest id number in current list to assign to maxId (not recommended but using for now)

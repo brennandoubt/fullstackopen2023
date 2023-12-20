@@ -8,7 +8,7 @@ import axios from 'axios'
  * Use CORS to enable cross-origin requests for restricted
  * resources (e.g. fonts)
  */
-const baseUrl = 'http://localhost:3001/api/notes'
+const baseUrl = 'http://localhost:3001/api/notes'  // connect backend (server) to frontend (browser)
 
 const getAll = () => {
     const request = axios.get(baseUrl)
