@@ -118,11 +118,6 @@ app.get('/api/notes/:id', (request, response, next) => {
 
 // implement route to delete resources: HTTP DELETE request
 app.delete('/api/notes/:id', (request, response, next) => {
-   const id = Number(request.params.id)
-   notes = notes.filter(note => note.id !== id)
-
-   response.status(204).end()
-
    Note.findByIdAndDelete(request.params.id)
       .then(result => {
          response.status(204).end()
