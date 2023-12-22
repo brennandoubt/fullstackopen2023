@@ -37,20 +37,8 @@ const Footer = () => {
     toggleImportance={() => toggleImportanceOf(note.id)
 */
 
-const List = ({ notes }) => {
-  if (notes) {
-    return [notes].map(n => {
-      <Note
-        key={n.id}
-        note={n}
-        toggleImportance={() => App.toggleImportanceOf(n.id)}
-      />
-    })
-  }
-}
-
 const App = (props) => {
-  const [errorMessage, setErrorMessage] = useState('some error happened...')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const [notes, setNotes] = useState([])
 
@@ -145,6 +133,13 @@ const App = (props) => {
     //setNewNote('')
   }
 
+  console.log(`notes to show:\n ${JSON.stringify(notesToShow)}, notes:\n ${JSON.stringify(notes)} `)
+  let noteslist = (notesToShow.length === 1)
+    ? [notesToShow]
+    : notesToShow
+
+  console.log(`notes list: ${JSON.stringify(noteslist)}`)
+
   const handleNoteChange = (event) => {
     console.log(event.target.value)  // no default action occurs on input change, unlike form submission
     setNewNote(event.target.value)
@@ -166,7 +161,9 @@ const App = (props) => {
         </button>
       </div>
       <ul>
-        <List notes={notesToShow} />
+        {showAll
+          ? noteslist.map(n => <Note key={n.id} note={n} toggleImportance={() => toggleImportanceOf(n.id)} />)
+          : noteslist.filter(n => (n.important)).map(n => <Note key={n.id} note={n} toggleImportance={() => toggleImportanceOf(n.id)} />)}
       </ul>
       <form onSubmit={addNote}>
         <input

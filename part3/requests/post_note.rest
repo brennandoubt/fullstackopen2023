@@ -7,6 +7,15 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+    "content": "lol",
+    "important": true
+}
+
+###
 PUT http://localhost:3001/api/notes/658451e91849946f1ed59863
 Content-Type: application/json
 

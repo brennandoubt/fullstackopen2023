@@ -8,6 +8,8 @@ mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
 
+console.log('connecting to', url)
+
 mongoose.connect(url)
    .then(result => {
       console.log('connected to MongoDB')
@@ -17,8 +19,15 @@ mongoose.connect(url)
       process.exit(1)
    })
 
+// can define specific validation rules for each field in schema using Mongoose
 const noteSchema = new mongoose.Schema({
-   content: String,
+   // content: String,
+   // important: Boolean
+   content: {
+      type: String,
+      minLength: 5,
+      required: true
+   },
    important: Boolean
 })
 

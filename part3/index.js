@@ -43,24 +43,6 @@ const generateId = () => {
    return maxId + 1
 }
 
-// to handle adding new notes to server (verify with Postman or REACT client)
-app.post('/api/notes', (request, response) => {
-   const body = request.body
-
-   if (body.content === undefined) {
-      return response.status(400).json({ error: 'content missing' })
-   }
-
-   const note = new Note({
-      content: body.content,
-      important: body.important || false,
-   })
-
-   note.save().then(savedNote => {
-      response.json(savedNote)
-   })
-})
-
 let notes = [
    {
       id: 1,
@@ -79,6 +61,25 @@ let notes = [
    }
 ]
 
+// to handle adding new notes to server (verify with Postman or REACT client)
+app.post('/api/notes', (request, response, next) => {
+   const body = request.body
+
+   if (body.content === undefined) {
+      return response.status(400).json({ error: 'content missing' })
+   }
+
+   const note = new Note({
+      content: body.content,
+      important: body.important || false,
+   })
+
+   note.save().then(savedNote => {
+      response.json(savedNote)
+   })
+   .catch(error => next(error))
+})
+
 // define route to app to handle http get requests made to app's /root path
 app.get('/', (request, response) => {
    response.send('<h1>Hello World!</h1>') // make server respond to http request
@@ -87,7 +88,7 @@ app.get('/', (request, response) => {
 // define route to app to handle http get requests made to app's /api/notes path
 app.get('/api/notes', (request, response) => {
    Note.find({}).then(notes => {
-      console.log(`response: ${notes}`)
+      //console.log(`response: ${notes}`)
       response.json(notes)
    })
    //response.json(notes) // respond with notes array passed as a JSON formatted string
@@ -105,7 +106,7 @@ app.get('/api/notes/:id', (request, response, next) => {
    // }
 
    Note.findById(request.params.id).then(note => {
-      console.log(`response: ${note}`)
+      //console.log(`response: ${note}`)
       if (note) {
          response.json(note)
       } else {
@@ -126,15 +127,13 @@ app.delete('/api/notes/:id', (request, response, next) => {
 })
 
 app.put('/api/notes/:id', (request, response, next) => {
-   const body = request.body
+   const { content, important } = request.body
 
-   const note = {
-      content: body.content,
-      important: body.important,
-   }
-
-   // new: true to cause event handler to be called with new modified document instead of original
-   Note.findByIdAndUpdate(request.params.id, note, { new: true })
+   Note.findByIdAndUpdate(
+      request.params.id,
+      { content, important },
+      { new: true, runValidators: true, context: 'query' }  // validate notes also when edited
+   )
       .then(updatedNote => {
          response.json(updatedNote)
       })
@@ -150,9 +149,13 @@ app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
    console.error(error.message)
+
    if (error.name === 'CastError') {
       return response.status(400).send({ error: 'malformatted id' })
+   } else if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message })
    }
+
    next(error)
 }
 
