@@ -21,6 +21,10 @@
 // import express function to create app
 const express = require('express')
 const app = express()
+require('dotenv').config()
+
+const Note = require('./models/note')
+
 app.use(express.json())
 
 // make express show fetched static content (middleware)
@@ -85,7 +89,10 @@ app.get('/', (request, response) => {
 
 // define route to app to handle http get requests made to app's /api/notes path
 app.get('/api/notes', (request, response) => {
-   response.json(notes) // respond with notes array passed as a JSON formatted string
+   Note.find({}).then(notes => {
+      response.json(notes)
+   })
+   //response.json(notes) // respond with notes array passed as a JSON formatted string
 })
 
 // implement route to handle http get requests of form /api/notes/x
@@ -124,7 +131,7 @@ app.delete('/api/notes/:id', (request, response) => {
  * instead of development
  */
 
-const PORT = process.env.PORT || 3001 // use port env or 3001 if undefined
+const PORT = process.env.PORT // use port env or 3001 if undefined
 app.listen(PORT, () => {
    console.log(`Server running on port ${PORT}`)
 })
