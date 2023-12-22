@@ -136,7 +136,7 @@ const App = () => {
         console.log(error.response.data.error)  // access error message
         setIsError(true)
         setOperationMessage(
-          `${personObject.name} could not be added`
+          `Error: ${error.response.data.error}`
         )
         setTimeout(() => {
           setOperationMessage(null)
