@@ -25,10 +25,10 @@ require('dotenv').config()
 
 const Note = require('./models/note')
 
-app.use(express.json())
-
 // make express show fetched static content (middleware)
 app.use(express.static('dist'))
+
+app.use(express.json())
 
 // enable cross-origin requests for resource sharing (middleware)
 const cors = require('cors')
@@ -94,7 +94,7 @@ app.get('/api/notes', (request, response) => {
 })
 
 // implement route to handle http get requests of form /api/notes/x
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/notes/:id', (request, response, next) => {
    // const id = Number(request.params.id)
    // const note = notes.find(note => note.id === id)
 
@@ -106,17 +106,63 @@ app.get('/api/notes/:id', (request, response) => {
 
    Note.findById(request.params.id).then(note => {
       console.log(`response: ${note}`)
-      response.json(note)
+      if (note) {
+         response.json(note)
+      } else {
+         response.status(404).end()
+      }
    })
+   // pass error forward to next route/middleware
+   .catch(error => next(error))
 })
 
 // implement route to delete resources: HTTP DELETE request
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/notes/:id', (request, response, next) => {
    const id = Number(request.params.id)
    notes = notes.filter(note => note.id !== id)
 
    response.status(204).end()
+
+   Note.findByIdAndDelete(request.params.id)
+      .then(result => {
+         response.status(204).end()
+      })
+      .catch(error => next(error))
 })
+
+app.put('/api/notes/:id', (request, response, next) => {
+   const body = request.body
+
+   const note = {
+      content: body.content,
+      important: body.important,
+   }
+
+   // new: true to cause event handler to be called with new modified document instead of original
+   Note.findByIdAndUpdate(request.params.id, note, { new: true })
+      .then(updatedNote => {
+         response.json(updatedNote)
+      })
+      .catch(error => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+   response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// handle requests with unknown endpoint (middleware)
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+   console.error(error.message)
+   if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+   }
+   next(error)
+}
+
+// handle requests with result to errors, has to be last loaded middleware
+app.use(errorHandler)
 
 /**
  * (fly launch) in root of backend project to

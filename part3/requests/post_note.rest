@@ -5,3 +5,15 @@ Content-Type: application/json
     "content": "VS code rest client is a pretty handy tool",
     "important": true
 }
+
+###
+PUT http://localhost:3001/api/notes/658451e91849946f1ed59863
+Content-Type: application/json
+
+{
+    "content": "HTML is Easy",
+    "important": false
+}
+
+###
+DELETE http://localhost:3001/api/notes/658451e91849946f1ed59864
