@@ -86,6 +86,7 @@ const App = () => {
         })
         .catch(error => {
           //alert(`Error occurred while trying to update number`)
+          console.log(error.response.data.error)  // access error message
           setIsError(true)
           setOperationMessage(
             `${updatedPersonObject.name}'s information could not be reached from server`
@@ -132,6 +133,7 @@ const App = () => {
         }, 3000)
       })
       .catch(error => {
+        console.log(error.response.data.error)  // access error message
         setIsError(true)
         setOperationMessage(
           `${personObject.name} could not be added`
@@ -170,6 +172,9 @@ const App = () => {
         setTimeout(() => {
           setOperationMessage(null)
         }, 3000)
+      })
+      .catch(error => {
+        console.log(error.response.data.error)  // access error message
       })
   }
 
