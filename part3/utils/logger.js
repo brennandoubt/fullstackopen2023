@@ -6,14 +6,14 @@
 
 // handle printing normal messages
 const info = (...params) => {
-   console.log(...params)
+  console.log(...params)
 }
 
 // handle printing error messages
 const error = (...params) => {
-   console.error(...params)
+  console.error(...params)
 }
 
 module.exports = {
-   info, error
+  info, error
 }
