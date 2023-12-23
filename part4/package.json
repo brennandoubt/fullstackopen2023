@@ -4,24 +4,28 @@
   "description": "blog list application",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
-    "test": "jest --verbose"
+    "test": "cross-env NODE_ENV=test jest --verbose"
   },
   "author": "Brennan Allen",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
     "mongoose": "^7.6.5"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.0.2",
-    "jest": "^29.7.0"
+    "supertest": "^6.3.3"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "./tests/teardown.js"
   }
 }
