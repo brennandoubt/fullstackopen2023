@@ -29,6 +29,15 @@ test('all blogs are returned as JSON', async () => {
   expect(response.body).toHaveLength(testHelper.initialBlogs.length)
 })
 
+test('blogs have a unique \'id\' property', async () => {
+  // has 'id' property once converted to json
+  const blogObject = new Blog().toJSON()
+
+  // check 'id' property is defined for blogs
+  expect(blogObject.id).toBeDefined()
+})
+
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
