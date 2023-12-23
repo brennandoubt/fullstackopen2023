@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+   "title": "Ideas on Unit Testing",
+   "author": "Alan Hardy",
+   "url": "mongodb://ahblog23",
+   "likes": "23"
+}
