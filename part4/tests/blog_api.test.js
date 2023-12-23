@@ -37,7 +37,26 @@ test('blogs have a unique \'id\' property', async () => {
   expect(blogObject.id).toBeDefined()
 })
 
+test('HTTP POST request creates a valid blog post', async () => {
+  const newBlog = {
+    title: 'Ideas on Unit Testing',
+    author: 'Alan Hardy',
+    url: 'n/a',
+    likes: 23
+  }
 
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await testHelper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length + 1)
+})
+
+
+// close Mongoose database connection after running all tests
 afterAll(async () => {
   await mongoose.connection.close()
 })
