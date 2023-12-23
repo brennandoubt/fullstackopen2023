@@ -56,8 +56,8 @@ notesRouter.put('/:id', (request, response, next) => {
   const body = request.body
 
   const note = {
-    content: body.important,
-    important: body.importantm
+    content: body.content,
+    important: body.important
   }
 
   Note.findByIdAndUpdate(request.params.id, note, { new: true })
