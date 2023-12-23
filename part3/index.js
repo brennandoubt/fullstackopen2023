@@ -30,6 +30,9 @@
  * development dependency
  * (npx eslint --init) to initialize default ESlint configuration
  * (npx eslint [file_name_here.js]) to inspect/validate file
+ * 
+ * Integration testing - testing multiple components of a system as a group,
+ * such as testing our entires app through its REST API which also includes the backend
  */
 
 const app = require('./app') // actual Express application

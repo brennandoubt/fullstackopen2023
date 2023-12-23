@@ -6,12 +6,18 @@
 
 // handle printing normal messages
 const info = (...params) => {
-  console.log(...params)
+  // don't print to console in test mode
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(...params)
+  }
 }
 
 // handle printing error messages
 const error = (...params) => {
-  console.error(...params)
+  // don't print when in test mode
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(...params)
+  }
 }
 
 module.exports = {

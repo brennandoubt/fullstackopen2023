@@ -3,21 +3,21 @@
  * 
  * 
  */
+require('dotenv').config()
 
 const mongoose = require('mongoose')
-
-if (process.argv.length < 3) {
-   console.log('give password as argument')
-   process.exit(1)
-}
 
 // pass password as command-line parameter (encode special characters)
 const password = process.argv[2]
 
-const url = `mongodb+srv://bdoubt:${password}@cluster0.ptdgwee.mongodb.net/noteApp?retryWrites=true&w=majority`
+const url = process.env.TEST_MONGODB_URI
 
 mongoose.set('strictQuery', false)
-mongoose.connect(url)
+
+console.log(`Connecting to ${url}...`)
+mongoose.connect(url).then(result => {
+   console.log(`Connected to MongoDB!`)
+})
 
 // define a schema to tell Mongoose how note objects should be stored in database
 const noteSchema = new mongoose.Schema({
@@ -26,6 +26,20 @@ const noteSchema = new mongoose.Schema({
 })
 // create matching model for defined schema to act as constructor for note objects
 const Note = mongoose.model('Note', noteSchema)
+
+const note1 = new Note({
+   content: 'HTML is easy',
+   important: false
+})
+
+const note2 = new Note({
+   content: 'I had to write this',
+   important: true
+})
+
+note2.save().then(result => {
+   console.log(`Note saved!\nresult:\n${result}`)
+})
 
 // use mode to construct new note object
 // const note = new Note({
