@@ -10,7 +10,8 @@
     "build:ui": "rm -rf dist && cd ../part2/ && npm run build && cp -r dist ../part3",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "log:prod": "fly logs"
+    "log:prod": "fly logs",
+    "lint": "eslint ."
   },
   "author": "Brennan Allen",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "mongoose": "^7.6.3"
   },
   "devDependencies": {
+    "eslint": "^8.56.0",
     "nodemon": "^3.0.2"
   }
 }
