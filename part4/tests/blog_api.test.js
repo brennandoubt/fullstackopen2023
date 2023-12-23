@@ -52,7 +52,29 @@ test('HTTP POST request creates a valid blog post', async () => {
     .expect('Content-Type', /application\/json/)
 
   const blogsAtEnd = await testHelper.blogsInDb()
+
   expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length + 1)
+})
+
+test('a blog posted with no \'likes\' property has 0 likes', async () => {
+  const blogID = await testHelper.nonExistingId() // to find blog later in database
+  const newBlog = {
+    id: blogID,
+    title: 'My Thoughts',
+    author: 'Terra',
+    url: 'n/a'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
+  const postedBlog = await Blog.findById(blogID)
+
+  expect(postedBlog.likes).toBeDefined()
+  expect(postedBlog.likes).toBe(0)
 })
 
 
