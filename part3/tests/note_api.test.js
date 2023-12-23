@@ -22,14 +22,31 @@ const app = require('../app')
 const api = supertest(app)
 const Note = require('../models/note')
 
+// reset database before each test
 beforeEach(async () => {
+  // beforeEach async function won't wait for inner async operations to finish
+  // use Promise.all method to make beforeEach wait for all async operations to finish
   await Note.deleteMany({})
 
-  let noteObject = new Note(helper.initialNotes[0])
-  await noteObject.save()
+  // create array of Mongoose objects made with Note constructor to hold initial notes
+  const noteObjects = helper.initialNotes.map(note => new Note(note))
 
-  noteObject = new Note(helper.initialNotes[1])
-  await noteObject.save()
+  // create array of promises for saving each note object to database
+  const promiseArray = noteObjects.map(note => note.save())
+
+  // await fulfillment of every promise in promise array, execute promises in parallel
+  await Promise.all(promiseArray)
+
+  /* ---How to execute Promises in a certain order (use for...of block)---
+  beforeEach(async () => {
+    await Note.deleteMany({})
+
+    for (let note of helper.initialNotes) {
+      let noteObject = new Note(note)
+      await noteObject.save()
+    }
+  })
+  */
 })
 
 // test http GET request to api/notes and verify response has status code 200
