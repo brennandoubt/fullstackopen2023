@@ -1,28 +1,12 @@
 /**
- * Note model for app made with Mongoose
+ * note.js file to define Mongoose schema
+ * and export matching model for notes
  */
+
 const mongoose = require('mongoose')
 
-mongoose.set('strictQuery', false)
-
-
-const url = process.env.MONGODB_URI
-
-console.log('connecting to', url)
-
-mongoose.connect(url)
-  .then(result => {
-    console.log(`result: ${result}\nconnected to MongoDB`)
-  })
-  .catch(error => {
-    console.log('error connecting to MongoDB:', error.message)
-    process.exit(1)
-  })
-
-// can define specific validation rules for each field in schema using Mongoose
+// define validation rules for note schema
 const noteSchema = new mongoose.Schema({
-  // content: String,
-  // important: Boolean
   content: {
     type: String,
     minLength: 5,
@@ -39,4 +23,5 @@ noteSchema.set('toJSON', {
   }
 })
 
+// export note model to use in other files
 module.exports = mongoose.model('Note', noteSchema)

@@ -1,4 +1,9 @@
 /**
+ * index.js: file to handle starting application
+ *
+ * Imports actual application from app.js, then
+ * starts application.
+ *
  * 3a) Making a backend web server
  *
  * Express library eases
@@ -27,10 +32,20 @@
  * (npx eslint [file_name_here.js]) to inspect/validate file
  */
 
+const app = require('./app') // actual Express application
+const config = require('./utils/config')
+const logger = require('./utils/logger')
+
+app.listen(config.PORT, () => {
+  // use logger module to log/print info about app to console
+  logger.info(`Server running on port ${config.PORT}`)
+})
+
+/* ---CODE BEFORE REFACTOR IN SECTION 4a---
 // import express function to create app
-const express = require('express')
-const app = express()
-require('dotenv').config()
+// const express = require('express')
+// const app = express()
+// require('dotenv').config()
 
 const Note = require('./models/note')
 
@@ -146,6 +161,8 @@ const errorHandler = (error, request, response, next) => {
 // handle requests with result to errors, has to be last loaded middleware
 app.use(errorHandler)
 
+*/
+
 /**
  * (fly launch) in root of backend project to
  * initialize app
@@ -161,8 +178,9 @@ app.use(errorHandler)
  * production build: version of app optimized for production
  * instead of development
  */
-
+/*
 const PORT = process.env.PORT // use port env or 3001 if undefined
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+*/
