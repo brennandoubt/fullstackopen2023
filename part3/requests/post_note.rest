@@ -11,8 +11,19 @@ POST http://localhost:3001/api/notes
 Content-Type: application/json
 
 {
-    "content": "lol",
-    "important": true
+    "content": "lol ok",
+    "important": false,
+    "userId": "658888fa8930d7ef3554d49d"
+}
+
+###
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+    "content": "root says hey",
+    "important": true,
+    "userId": "658888968930d7ef3554d498"
 }
 
 ###

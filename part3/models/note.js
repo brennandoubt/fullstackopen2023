@@ -12,7 +12,12 @@ const noteSchema = new mongoose.Schema({
     minLength: 5,
     required: true
   },
-  important: Boolean
+  important: Boolean,
+  // expand note schema to include info on user who created the note
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 noteSchema.set('toJSON', {

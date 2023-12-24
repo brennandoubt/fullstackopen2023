@@ -10,10 +10,14 @@
 // create new router object that all routes will be defined for
 const notesRouter = require('express').Router()
 const Note = require('../models/note')
+const User = require('../models/user')
 
 // route to get all notes
 notesRouter.get('/', async (request, response) => {
-  const notes = await Note.find({})
+  // use populate to make join query for user info
+  const notes = await Note
+    .find({}).populate('user', { username: 1, name: 1 })
+
   response.json(notes)
 })
 
@@ -31,16 +35,20 @@ notesRouter.get('/:id', async (request, response, next) => {
 notesRouter.post('/', async (request, response, next) => {
   const body = request.body
 
+  // expand this route to assign note to user who created it
+  const user = await User.findById(body.userId)
+
   const note = new Note({
     content: body.content,
-    important: body.important || false,
+    important: body.important === undefined ? false : body.important,
+    user: user.id
   })
 
-  // use try-catch block for async/await error handling
   const savedNote = await note.save()
-  response.status(201).json(savedNote)
+  user.notes = user.notes.concat(savedNote._id)
+  await user.save()
 
-  //next(exception) // pass request handling to error handling middleware
+  response.status(201).json(savedNote)
 })
 
 // route to delete specific note
