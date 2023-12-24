@@ -134,6 +134,33 @@ test('posting a blog with no title or url returns status code 400', async () => 
   expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
 })
 
+describe('deleting a blog post', () => {
+  test('with a valid id is successful', async () => {
+    const blogsAtStart = await testHelper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+    
+    const blogsAtEnd = await testHelper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length - 1)
+    
+    const ids = blogsAtEnd.map(blog => blog.id)
+    expect(ids).not.toContain(blogToDelete.id)
+  })
+  test('with an invalid id does nothing', async () => {
+    const invalidID = await testHelper.nonExistingId()
+
+    await api
+      .delete(`/api/blogs/${invalidID}`)
+      .expect(204)
+    
+    const blogsAtEnd = await testHelper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
+  })
+})
+
 // close Mongoose database connection after running all tests
 afterAll(async () => {
   await mongoose.connection.close()
