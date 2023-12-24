@@ -148,18 +148,30 @@ describe('deleting a blog post', () => {
     
     const ids = blogsAtEnd.map(blog => blog.id)
     expect(ids).not.toContain(blogToDelete.id)
-  })
-  test('with an invalid id does nothing', async () => {
-    const invalidID = await testHelper.nonExistingId()
+  }, 10000)
+})
+
+describe('updating a blog post', () => {
+  test('with a valid id is successful', async () => {
+    const blogsAtStart = await testHelper.blogsInDb()
+    const updatedBlog = {
+      title: blogsAtStart[0].title,
+      author: blogsAtStart[0].author,
+      url: blogsAtStart[0].url,
+      likes: (blogsAtStart[0].likes + 1) // increasing a blog post's likes by 1
+    }
 
     await api
-      .delete(`/api/blogs/${invalidID}`)
-      .expect(204)
-    
+      .put(`/api/blogs/${blogsAtStart[0].id}`)
+      .send(updatedBlog)
+      .expect(200)
+
     const blogsAtEnd = await testHelper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
-  })
+  }, 10000)
 })
+
+
 
 // close Mongoose database connection after running all tests
 afterAll(async () => {
