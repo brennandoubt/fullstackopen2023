@@ -1,6 +1,11 @@
 /**
  * File to handle testing API for
  * blog list app
+ * 
+ * Use toContain() to verify an array
+ * contains a specific value. Use 
+ * toContainEqual() to verify an array
+ * contains a specific object.
  */
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -38,10 +43,12 @@ test('blogs have a unique \'id\' property', async () => {
 })
 
 test('HTTP POST request creates a valid blog post', async () => {
+  const newBlogID = await testHelper.nonExistingId() // to find blog in database
   const newBlog = {
+    id: newBlogID,
     title: 'Ideas on Unit Testing',
     author: 'Alan Hardy',
-    url: 'n/a',
+    url: 'cantsay',
     likes: 23
   }
 
@@ -52,8 +59,11 @@ test('HTTP POST request creates a valid blog post', async () => {
     .expect('Content-Type', /application\/json/)
 
   const blogsAtEnd = await testHelper.blogsInDb()
-
   expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length + 1)
+
+  // convert new and posted blogs to json objects and match properties
+  const postedBlog = await Blog.findById(newBlogID)
+  expect(postedBlog.toJSON()).toEqual(new Blog(newBlog).toJSON())
 })
 
 test('a blog posted with no \'likes\' property has 0 likes', async () => {
@@ -62,7 +72,7 @@ test('a blog posted with no \'likes\' property has 0 likes', async () => {
     id: blogID,
     title: 'My Thoughts',
     author: 'Terra',
-    url: 'n/a'
+    url: 'notsure'
   }
 
   await api
@@ -77,6 +87,52 @@ test('a blog posted with no \'likes\' property has 0 likes', async () => {
   expect(postedBlog.likes).toBe(0)
 })
 
+test('posting a blog with no title returns status code 400', async () => {
+  const newBlog = {
+    author: 'Terra',
+    url: 'somethingdotcom',
+    likes: 10
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await testHelper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
+})
+
+test('posting a blog with no url returns status code 400', async () => {
+  const newBlog = {
+    title: 'My Thoughts',
+    author: 'Terra',
+    likes: 16
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await testHelper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
+})
+
+test('posting a blog with no title or url returns status code 400', async () => {
+  const newBlog = {
+    author: 'Terra',
+    likes: 4
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await testHelper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
+})
 
 // close Mongoose database connection after running all tests
 afterAll(async () => {
