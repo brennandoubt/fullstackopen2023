@@ -41,8 +41,12 @@ app.use('/api/login', loginRouter)
 // register before blogs router to extract user authentication tokens for blog posts
 app.use(middleware.tokenExtractor)
 
+// option to register middleware just for a specific route
+// can also register middleware just for specific operations (e.g. post or delete)
+app.use('/api/blogs', middleware.userExtractor, blogsRouter)
+
 // blogs router attached to /api/blogs route
-app.use('/api/blogs', blogsRouter)
+//app.use('/api/blogs', blogsRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

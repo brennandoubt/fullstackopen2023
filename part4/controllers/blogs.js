@@ -27,13 +27,16 @@ blogsRouter.post('/', async (request, response) => {
 
   if (blog.title && blog.url) {
 
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'token invalid' })
-    }
+    // const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    // if (!decodedToken.id) {
+    //   return response.status(401).json({ error: 'token invalid' })
+    // }
 
     // decoded token contains username/id fields to tell server who made the request
-    const user = await User.findById(decodedToken.id)
+    //const user = await User.findById(decodedToken.id)
+
+    // get token user from userExtractor middleware
+    const user = request.user
 
     blog.user = user.id
     const savedBlog = await blog.save()
@@ -51,11 +54,7 @@ blogsRouter.delete('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
 
   // extract user token data to find creator of blog post
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
   
   if (blog.user.toString() === user.id.toString()) {
     await Blog.findByIdAndDelete(request.params.id)
