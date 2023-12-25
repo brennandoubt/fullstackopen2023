@@ -13,14 +13,6 @@ const User = require('../models/user')
 // for token-based user authentication
 const jwt = require('jsonwebtoken')
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
-
 // get all blogs
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
@@ -34,18 +26,16 @@ blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
 
   if (blog.title && blog.url) {
-    const requestToken = getTokenFrom(request)
-    if (!requestToken) {
-      return response.status(401).json({ error: 'token not found' })
-    }
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token invalid' })
     }
+
     // decoded token contains username/id fields to tell server who made the request
     const user = await User.findById(decodedToken.id)
+    
     blog.user = user.id
-
     const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()

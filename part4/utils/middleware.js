@@ -35,8 +35,29 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
+// middleware to extract token from a request
+const tokenExtractor = (request, response, next) => {
+
+  if (request.method === 'POST') {
+    logger.info('Extracting user token...')
+    
+    // extract token from Authorization header into request's token field
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+      // place token into 'token' field of request object
+      logger.info('User token: ', authorization.replace('Bearer', ''))
+      request.token = authorization.replace('Bearer ', '')
+    } else {
+      return response.status(401).json({ error: 'token not found' })
+    }
+  }
+
+  next()
+}
+
 module.exports = {
   requestLogger,
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  tokenExtractor
 }
