@@ -6,7 +6,9 @@ const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 
+// create new user
 usersRouter.post('/', async (request, response) => {
+  // check username/password exist
   if (!(request.body.username && request.body.password)) {
     return response.status(401).json({
       error: 'username and password are required'
@@ -15,6 +17,7 @@ usersRouter.post('/', async (request, response) => {
 
   const { username, name, password } = request.body
 
+  // check username/password length
   if (username.length < 3 || password.length < 3) {
     return response.status(401).json({
       error: 'username and password must be at least 3 characters long'
@@ -44,8 +47,10 @@ usersRouter.post('/', async (request, response) => {
   response.status(201).json(savedUser)
 })
 
+// get all users
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User
+    .find({}).populate('blogs', { likes: 0, user: 0 })
 
   response.json(users)
 })

@@ -8,10 +8,13 @@
  */
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 // get all blogs
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog
+    .find({}).populate('user', { username: 1, name: 1 })
+
   response.json(blogs)
 })
 
@@ -19,7 +22,14 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
   if (blog.title && blog.url) {
+    // designate first user found from database as creator of new blog post
+    const users = await User.find({})
+    blog.user = users[0].id
+
     const result = await blog.save()
+    users[0].blogs = users[0].blogs.concat(result._id)
+    await users[0].save()
+
     response.status(201).json(result)
   } else {
     response.status(400).end()

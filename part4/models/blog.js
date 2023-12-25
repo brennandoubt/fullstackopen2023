@@ -1,6 +1,8 @@
 /**
  * blog.js file to define Mongoose schema
  * and export matching model for blogs
+ * 
+ * 
  */
 const mongoose = require('mongoose')
 
@@ -12,6 +14,10 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     required: false,
     default: 0
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
 
