@@ -38,7 +38,7 @@ const errorHandler = (error, request, response, next) => {
 // middleware to extract token from a request
 const tokenExtractor = (request, response, next) => {
 
-  if (request.method === 'POST') {
+  if (request.method === 'POST' || request.method === 'DELETE') {
     logger.info('Extracting user token...')
     
     // extract token from Authorization header into request's token field

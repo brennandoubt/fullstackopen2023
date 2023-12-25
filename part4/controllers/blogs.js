@@ -34,7 +34,7 @@ blogsRouter.post('/', async (request, response) => {
 
     // decoded token contains username/id fields to tell server who made the request
     const user = await User.findById(decodedToken.id)
-    
+
     blog.user = user.id
     const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog._id)
@@ -48,8 +48,23 @@ blogsRouter.post('/', async (request, response) => {
 
 // delete a blog post
 blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+  const blog = await Blog.findById(request.params.id)
+
+  // extract user token data to find creator of blog post
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+  
+  if (blog.user.toString() === user.id.toString()) {
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } else {
+    return response.status(401).json({
+      error: 'user invalid for this blog post'
+    })
+  }
 })
 
 // update a blog post
