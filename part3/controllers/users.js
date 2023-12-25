@@ -9,6 +9,10 @@
  * in relational databases.
  * 
  * Mongoose join queries are done with the 'populate' method.
+ * 
+ * Use 'jsonwebtoken' library to generate JSON web tokens
+ * to implement functionality for users to log in with token-based
+ * authentication.
  */
 const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
@@ -39,7 +43,7 @@ usersRouter.get('/', async (request, response) => {
   // use populate to make join query to replace note object IDs in users' notes field with corresponding note documents
   const users = await User
     .find({}).populate('notes', { content: 1, important: 1 })
-    
+
   response.json(users)
 })
 

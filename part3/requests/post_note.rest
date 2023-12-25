@@ -27,6 +27,16 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdXVra2FpIiwiaWQiOiI2NTg4ODhmYTg5MzBkN2VmMzU1NGQ0OWQiLCJpYXQiOjE3MDM0OTUwMDN9.a4kvBPYyfNSqaK5Ze9yb2NbkudhDr9WthF5_k49hKqQ
+
+{
+    "content": "Single Page Apps use token authentication",
+    "important": true
+}
+
+###
 PUT http://localhost:3001/api/notes/658451e91849946f1ed59863
 Content-Type: application/json
 
