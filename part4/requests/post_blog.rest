@@ -29,3 +29,15 @@ Content-Type: application/json
    "url": "https://reactpatterns.com/",
    "likes": "7"
 }
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvdWJ0eTIiLCJpZCI6IjY1ODk4YTUwOGRjNmQ0NDQ0NmIwMTU3NiIsImlhdCI6MTcwMzUxNDg2NCwiZXhwIjoxNzAzNTE4NDY0fQ.rSRXxzu5Veppb6wlYaJpHMy9Fsund8Y2-qP0IBr-zl4
+
+{
+   "title": "Type wars",
+   "author": "Robert C. Martin",
+   "url": "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+   "likes": "2"
+}
