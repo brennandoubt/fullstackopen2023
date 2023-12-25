@@ -173,6 +173,23 @@ test('posting a blog with no title or url returns status code 400', async () => 
   expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
 })
 
+test('posting a blog without a token fails with status code 401', async () => {
+  const newBlog = {
+    title: 'Jurassic Love',
+    author: 'Terra',
+    url: 'somethingdotnet',
+    likes: 17
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+
+  const blogsAtEnd = await testHelper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(testHelper.initialBlogs.length)
+})
+
 describe('deleting a blog post', () => {
   test('with a valid id is successful', async () => {
     const blogsAtStart = await testHelper.blogsInDb()
