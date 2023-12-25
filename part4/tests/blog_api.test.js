@@ -14,12 +14,39 @@ const app = require('../app')
 
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 // reset database prior to each test
+let testUserToken = null
 beforeEach(async () => {
+  await User.deleteMany({})
   await Blog.deleteMany({})
-  const blogObjects = testHelper.initialBlogs.map(blog => new Blog(blog))
+
+  const testUser = {
+    username: 'testuser1',
+    password: 'testpassword1',
+    name: 'TestUser1'
+  }
+
+  // post user to list of users in test database
+  const savedUser = await api
+    .post('/api/users')
+    .send(testUser)
+    .expect(201)
+
+  // log in user and generate user authentication token to use in tests
+  const response = await api
+    .post('/api/login')
+    .send({ username: 'testuser1', password: 'testpassword1' })
+    .expect(200)
+  testUserToken = response.body.token // assign token to global variable for other tests
+
+  // generate test blog posts that are linked to test user by their user id
+  const blogObjects = testHelper.initialBlogs.map(blog => 
+    new Blog({ ...blog, user: savedUser.body.id }))
+
   const promises = blogObjects.map(blog => blog.save())
+
   await Promise.all(promises)
 })
 
@@ -54,6 +81,7 @@ test('HTTP POST request creates a valid blog post', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${testUserToken}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -63,7 +91,14 @@ test('HTTP POST request creates a valid blog post', async () => {
 
   // convert new and posted blogs to json objects and match properties
   const postedBlog = await Blog.findById(newBlogID)
-  expect(postedBlog.toJSON()).toEqual(new Blog(newBlog).toJSON())
+
+  // add user field to new blog to compare with posted blog
+  const newBlogWithUserId = {
+    ...newBlog,
+    user: postedBlog.user
+  }
+
+  expect(postedBlog.toJSON()).toEqual(new Blog(newBlogWithUserId).toJSON())
 })
 
 test('a blog posted with no \'likes\' property has 0 likes', async () => {
@@ -77,6 +112,7 @@ test('a blog posted with no \'likes\' property has 0 likes', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${testUserToken}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -96,6 +132,7 @@ test('posting a blog with no title returns status code 400', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${testUserToken}`)
     .send(newBlog)
     .expect(400)
 
@@ -112,6 +149,7 @@ test('posting a blog with no url returns status code 400', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${testUserToken}`)
     .send(newBlog)
     .expect(400)
 
@@ -127,6 +165,7 @@ test('posting a blog with no title or url returns status code 400', async () => 
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${testUserToken}`)
     .send(newBlog)
     .expect(400)
 
@@ -141,6 +180,7 @@ describe('deleting a blog post', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${testUserToken}`)
       .expect(204)
     
     const blogsAtEnd = await testHelper.blogsInDb()
