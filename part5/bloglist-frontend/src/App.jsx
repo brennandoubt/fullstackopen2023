@@ -3,6 +3,16 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+const Notification = ({ message, isError }) => {
+  if (message === null) return null
+  let messageType = isError ? 'error' : 'success'
+  return (
+    <div className={messageType}>
+      {message}
+    </div>
+  )
+}
+
 const BlogForm = (props) => {
   return (
     <form onSubmit={props.handleSubmit}>
@@ -46,6 +56,10 @@ const App = () => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
+  // for notifications on browser
+  const [message, setMessage] = useState(null)
+  const [isError, setIsError] = useState(false)
+
   // implement frontend for user login
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -68,7 +82,19 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
+
+      setMessage(`Welcome back, ${user.name}!`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
     } catch (exception) {
+      // display notification on browser if error occurs at login
+      setIsError(true)
+      setMessage(`Wrong credentials`)
+      setTimeout(() => {
+        setIsError(false)
+        setMessage(null)
+      }, 5000)
       console.log(`Error: exception ${exception} caught`)
     }
   }
@@ -81,6 +107,12 @@ const App = () => {
     window.localStorage.removeItem('loggedBloglistappUser')
     blogService.setToken(null)
     setUser(null)
+
+    // display notification on successful logout
+    setMessage(`Logged out!`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
   }
 
   useEffect(() => {
@@ -112,12 +144,19 @@ const App = () => {
     setTitle('')
     setAuthor('')
     setUrl('')
+    
+    // display notification when new blog successfully added
+    setMessage(`Blog '${returnedBlog.title}' by ${returnedBlog.author} added!`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
   }
 
 
   const loginForm = () => (
     <div>
       <h2>log in to application</h2>
+      <Notification message={message} isError={isError} />
       <form onSubmit={handleLogin}>
         <div>
           username
@@ -144,6 +183,7 @@ const App = () => {
   const blogList = () => (
     <div>
       <h2>blogs</h2>
+      <Notification message={message} isError={isError} />
       <p>
         {user.name} logged in <Button text='logout' handler={handleLogout} />
       </p>
