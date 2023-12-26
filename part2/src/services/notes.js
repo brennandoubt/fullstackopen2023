@@ -36,7 +36,6 @@ const getAll = () => {
   return request.then(response => response.data)
 }
 
-
 const create = async newObject => {
   // set token to Authorization header
   const config = {
