@@ -23,23 +23,32 @@
  * http://localhost:3001.
  */
 import axios from 'axios'
+const baseUrl = '/api/notes' // connect frontend to backend
 
-//const baseUrl = 'http://localhost:3001/api/notes'  // connect backend (server) to frontend (browser)
-const baseUrl = '/api/notes'
-
-const getAll = () => {
-    const request = axios.get(baseUrl)
-    return request.then(response => response.data)
+// user auth token to attach to post requests for new notes
+let token = null
+const setToken = newToken => {
+  token = `Bearer ${newToken}`
 }
 
-const create = newObject => {
-    const request = axios.post(baseUrl, newObject)
-    return request.then(response => response.data)
+const getAll = () => {
+  const request = axios.get(baseUrl)
+  return request.then(response => response.data)
+}
+
+
+const create = async newObject => {
+  // set token to Authorization header
+  const config = {
+    headers: { Authorization: token }
+  }
+  const response = await axios.post(baseUrl, newObject, config)
+  return response.data
 }
 
 const update = (id, newObject) => {
-    const request = axios.put(`${baseUrl}/${id}`, newObject)
-    return request.then(response => response.data)
+  const request = axios.put(`${baseUrl}/${id}`, newObject)
+  return request.then(response => response.data)
 }
 
-export default { getAll, create, update }
+export default { getAll, create, update, setToken }

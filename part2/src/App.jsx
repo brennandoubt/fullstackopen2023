@@ -1,15 +1,18 @@
-/* eslint-disable no-unused-vars */
+/**
+ * Define frontend App component for notes app
+ * part2: frontend source code
+ * part3: backend source code
+ * 
+ */
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Note from './components/Note'
 import noteService from './services/notes'
+import loginService from './services/login'
 
-// eslint-disable-next-line react/prop-types
 const Notification = ({ message }) => {
   if (message === null) {
     return null
   }
-
   return (
     <div className='error'>
       {message}
@@ -30,38 +33,73 @@ const Footer = () => {
     </div>
   )
 }
-/*
-<Note
-    key={note.id}
-    note={note}
-    toggleImportance={() => toggleImportanceOf(note.id)
-*/
 
-const App = (props) => {
+const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
-
   const [notes, setNotes] = useState([])
-
   // for storing user-submitted input in form
   const [newNote, setNewNote] = useState('')
-  
   // for keeping track of which notes should be displayed
   const [showAll, setShowAll] = useState(true)
 
+  // implement front end for user login
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [user, setUser] = useState(null)
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    console.log('logging in with', username, password)
+
+    try {
+      // saves server response with user details and token
+      const user = await loginService.login({
+        username, password
+      })
+
+      // save login info to web app's local storage
+      window.localStorage.setItem(
+        'loggedNoteappUser', JSON.stringify(user)
+      )
+      noteService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (exception) {
+      setErrorMessage('Wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
   // fetching notes data from server with an effect hook
   useEffect(() => {
+    // effects run after every render by default, but can be set to run after certain values have changed
     noteService
       .getAll()
       .then(initialNotes => {
         setNotes(initialNotes)
       })
-  }, [])   // effects run after every render by default, but can be set to run after certain values have changed
+  }, [])
+
+  // check if user info is present in local storage to keep user logged in on page re-render
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      noteService.setToken(user.token)
+    }
+    // log user out from console: .removeItem(key) / .clear()
+  })
 
   const toggleImportanceOf = (id) => {
-    console.log(`importance of ${id} needs to be toggled`)  // template string
+    console.log(`importance of ${id} needs to be toggled`)
 
-    const note = notes.find(n => n.id === id)  // finds note to modify and assigns it to 'note' variable
-    const changedNote = { ...note, important: !note.important }  // make a copy of the note but with its important property flipped
+    const note = notes.find(n => n.id === id)
+    // copy of note with 'important' property flipped
+    const changedNote = { ...note, important: !note.important }
 
     noteService
       .update(id, changedNote)
@@ -77,22 +115,7 @@ const App = (props) => {
         }, 5000)
         setNotes(notes.filter(n => n.id !== id))
       })
-
-    /*
-    // PUT request sent to backend to replace note data, then component's notes state set to new array containing the updated version of note
-    axios.put(url, changedNote).then(response => {
-      setNotes(notes.map(n => n.id !== id ? n : response.data))
-    })
-    */
   }
-  
-  // conditional operator ?: condition true = val1, condition false = val2
-  const val1 = 1
-  const val2 = 2
-  const condition = true
-
-  // true -> val1
-  const result = condition ? val1 : val2
 
   // false -> filter by important notes
   const notesToShow = showAll
@@ -110,51 +133,71 @@ const App = (props) => {
       important: Math.random() < 0.5,
     }
 
-    /*
-    // note object sent to the server
-    axios
-      .post('http://localhost:3001/notes', noteObject)
-      .then(response => {
-        console.log(response)
-
-        // then updated on the browser
-        setNotes(notes.concat(response.data))
-        setNewNote('')
-      })
-    */
     noteService
       .create(noteObject)
       .then(returnedNote => {
         setNotes(notes.concat(returnedNote))
         setNewNote('')
       })
-
-    //setNotes(notes.concat(noteObject))
-    //setNewNote('')
   }
 
-  console.log(`notes to show:\n ${JSON.stringify(notesToShow)}, notes:\n ${JSON.stringify(notes)} `)
   let noteslist = (notesToShow.length === 1)
     ? [notesToShow]
     : notesToShow
-
-  console.log(`notes list: ${JSON.stringify(noteslist)}`)
 
   const handleNoteChange = (event) => {
     console.log(event.target.value)  // no default action occurs on input change, unlike form submission
     setNewNote(event.target.value)
   }
 
+  // helpers for login and note forms to conditionally render on page
+  const loginForm = () => (
+    <form onSubmit={handleLogin}>
+      <div>
+        username
+        <input
+          type='text'
+          value={username}
+          name='Username'
+          onChange={({ target }) => setUsername(target.value)}
+        />
+      </div>
+      <div>
+        password
+        <input
+          type='password'
+          value={password}
+          name='Password'
+          onChange={({ target }) => setPassword(target.value)}
+        />
+      </div>
+      <button type='submit'>login</button>
+    </form>
+  )
+  const noteForm = () => (
+    <form onSubmit={addNote}>
+      <input
+        value={newNote}
+        onChange={handleNoteChange}
+      />
+      <button type="submit">save</button>
+    </form>
+  )
+
   // need key values for mapping note elements, can use their indices (note, i) but not recommended
   return (
     <div>
       <h1>Notes</h1>
       <Notification message={errorMessage} />
-      {/* <ul>
-        <li>{notes[0].content}</li>
-        <li>{notes[1].content}</li>
-        <li>{notes[2].content}</li>
-      </ul> */}
+
+      {!user && loginForm()}
+      {user &&
+        <div>
+          <p>{user.name} logged in</p>
+          {noteForm()}
+        </div>
+      }
+
       <div>
         <button onClick={() => setShowAll(!showAll)}>
           show {showAll ? 'important' : 'all'}
@@ -165,13 +208,6 @@ const App = (props) => {
           ? noteslist.map(n => <Note key={n.id} note={n} toggleImportance={() => toggleImportanceOf(n.id)} />)
           : noteslist.filter(n => (n.important)).map(n => <Note key={n.id} note={n} toggleImportance={() => toggleImportanceOf(n.id)} />)}
       </ul>
-      <form onSubmit={addNote}>
-        <input
-          value={newNote}
-          onChange={handleNoteChange}
-        />
-        <button type="submit">save</button>
-      </form>
       <Footer />
     </div>
   )
