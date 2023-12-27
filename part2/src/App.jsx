@@ -4,8 +4,11 @@
  * part3: backend source code
  * 
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Note from './components/Note'
+import LoginForm from './components/LoginForm'
+import Togglable from './components/Togglable'
+import NoteForm from './components/NoteForm'
 import noteService from './services/notes'
 import loginService from './services/login'
 
@@ -35,10 +38,10 @@ const Footer = () => {
 }
 
 const App = () => {
+  const [loginVisible, setLoginVisible] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
   const [notes, setNotes] = useState([])
-  // for storing user-submitted input in form
-  const [newNote, setNewNote] = useState('')
+  
   // for keeping track of which notes should be displayed
   const [showAll, setShowAll] = useState(true)
 
@@ -46,6 +49,9 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
+  // reference to Togglable component
+  const noteFormRef = useRef()
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -92,7 +98,7 @@ const App = () => {
       noteService.setToken(user.token)
     }
     // log user out from console: .removeItem(key) / .clear()
-  })
+  }, [])
 
   const toggleImportanceOf = (id) => {
     console.log(`importance of ${id} needs to be toggled`)
@@ -126,18 +132,13 @@ const App = () => {
 
 
   // event triggers call to event handler function
-  const addNote = (event) => {
-    event.preventDefault()  // default action would reload page (+ other stuff)
-    const noteObject = {
-      content: newNote,
-      important: Math.random() < 0.5,
-    }
-
+  const addNote = (noteObject) => {
+    // hide new note form after new note is created
+    noteFormRef.current.toggleVisibility()
     noteService
       .create(noteObject)
       .then(returnedNote => {
         setNotes(notes.concat(returnedNote))
-        setNewNote('')
       })
   }
 
@@ -145,43 +146,35 @@ const App = () => {
     ? [notesToShow]
     : notesToShow
 
-  const handleNoteChange = (event) => {
-    console.log(event.target.value)  // no default action occurs on input change, unlike form submission
-    setNewNote(event.target.value)
+  // helpers for login and note forms to conditionally render on page
+  const loginForm = () => {
+    // toggle login form with login/cancel buttons
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
+      </div>
+    )
   }
 
-  // helpers for login and note forms to conditionally render on page
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          type='text'
-          value={username}
-          name='Username'
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          type='password'
-          value={password}
-          name='Password'
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type='submit'>login</button>
-    </form>
-  )
   const noteForm = () => (
-    <form onSubmit={addNote}>
-      <input
-        value={newNote}
-        onChange={handleNoteChange}
-      />
-      <button type="submit">save</button>
-    </form>
+    <Togglable buttonLabel='new note' ref={noteFormRef}>
+      <NoteForm createNote={addNote} />
+    </Togglable>
   )
 
   // need key values for mapping note elements, can use their indices (note, i) but not recommended
